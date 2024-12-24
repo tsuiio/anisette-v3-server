@@ -42,7 +42,7 @@
           PODMAN_SYSTEMD_UNIT: pod-anisette-v3.service
         state: created
         rm: true
-        volume: /home/Alcoholic/.config/anisettev3/lib/
+        volume: /home/Alcoholic/.config/anisette-v3/lib/
         publish: 6969:6969
       become_user: rootless
 
@@ -88,7 +88,6 @@
       become_user: rootless
       environment: # If you ever do systemctl stuff as the rootless user with containers, you must set that XDG variable so that you fix: Failed to connect to bus: No medium found, maybe good practise to put that export line into .bashrc mmm?
         XDG_RUNTIME_DIR: /run/user/{{rootless_usr.uid}}
-
 #    - name: Configure podman-auto-update.timer to run every minute
 #      ansible.builtin.lineinfile:
 #        line: "OnUnitActiveSec=1min"
