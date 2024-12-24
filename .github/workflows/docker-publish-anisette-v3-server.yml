@@ -49,10 +49,9 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          push: true
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,"name=${{ env.REGISTRY_IMAGE }}",push-by-digest=true,name-canonical=true
+          outputs: type=image,"name=${{ env.REGISTRY_IMAGE }}",push-by-digest=true,name-canonical=true,push=true
 
       - name: Export digest
         run: |
@@ -110,6 +109,10 @@ jobs:
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             $(printf '${{ env.REGISTRY_IMAGE}}@sha256:%s ' *)
 
+      - name: Retrieve image
+        id: retrieve-image
+        run: echo "value=$(echo "$DOCKER_METADATA_OUTPUT_JSON" | jq -r '.tags[1]')" >> $GITHUB_OUTPUT
+
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:latest
+          docker buildx imagetools inspect ${{ steps.retrieve-image.outputs.value }}
