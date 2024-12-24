@@ -4,17 +4,15 @@
 	"authors": [
 		"Dadoum"
 	],
-
 	"dependencies": {
 		"provision": {
-			"repository": "git+https://github.com/Dadoum/Provision.git",
-			"version": "fe879b1148767767481b9c2753d4fd741cb2d7fa"
+			"repository": "git+https://github.com/tsuiio/Provision.git",
+			"version": "645d56d8e8c86c057893321843db00b21f1aaeb2"
 		},
 		"slf4d": "~>2.1.1",
-		"vibe-d:web": "~>0.9.8",
-		"vibe-d:http": "~>0.9.8"
+		"vibe-d:web": "~>0.10.1",
+		"vibe-d:http": "~>0.10.1"
 	},
-
 	"configurations": [
 		{
 			"name": "default",
