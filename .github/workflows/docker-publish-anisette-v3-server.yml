@@ -1,7 +1,6 @@
 name: Build and publish images
 
 on:
-  workflow_dispatch:
   push:
     tags:
       - "*"
@@ -113,4 +112,4 @@ jobs:
 
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.sha }}
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:latest
