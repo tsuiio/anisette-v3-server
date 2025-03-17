@@ -52,7 +52,9 @@ int main(string[] args) {
 
 	Logger log = getLogger();
 	log.info(brandingCode);
-	string hostname = "0.0.0.0";
+	string defaultHostname = "::";
+	string[] hostnames;
+	arraySep = ",";
 	ushort port = 6969;
 
 	string configurationPath = expandTilde("~/.config/anisette-v3");
@@ -66,7 +68,7 @@ int main(string[] args) {
 
 	auto helpInformation = getopt(
 		args,
-		"n|host", format!"The hostname to bind to (default: %s)"(hostname), &hostname,
+		"n|host", format!"The hostname to bind to (default: 0.0.0.0,::)", &hostnames,
 		"p|port", format!"The port to bind to (default: %s)"(port), &port,
 		"a|adi-path", format!"Where the provisioning information should be stored on the computer for anisette-v1 backwards compat (default: %s)"(configurationPath), &configurationPath,
 		"timeout", format!"Timeout duration for Anisette V3 in milliseconds (default: %d)"(timeoutMsecs), &timeoutMsecs,
@@ -74,6 +76,10 @@ int main(string[] args) {
 		"cert-chain", "Path to the PEM-formatted certificate chain file for HTTPS support (requires --private-key)", &privateKeyPath,
 		"skip-server-startup", "If provided the server will skip HTTP binding and instead execute only initial configuration (if needed).", &skipServerStartup,
 	);
+
+	if (hostnames.empty) {
+		hostnames ~= defaultHostname;
+	}
 
 	timeout = dur!"msecs"(timeoutMsecs);
 
@@ -170,7 +176,7 @@ int main(string[] args) {
 	// Start up the HTTP server.
 	auto settings = new HTTPServerSettings;
 	settings.port = port;
-	settings.bindAddresses = [hostname];
+	settings.bindAddresses = hostnames;
 	settings.sessionStore = new MemorySessionStore;
 	if (certificateChainPath) {
 		settings.tlsContext = createTLSContext(TLSContextKind.server);
