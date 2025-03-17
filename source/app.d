@@ -32,6 +32,7 @@ import provision;
 import provision.androidlibrary;
 
 __gshared string libraryPath;
+__gshared string architectureIdentifier;
 
 enum brandingCode = format!"anisette-v3-server v%s"(provisionVersion);
 enum clientInfo = "<MacBookPro13,2> <macOS;13.1;22C65> <com.apple.AuthKit/1 (com.apple.dt.Xcode/3594.4.19)>";
@@ -91,6 +92,18 @@ int main(string[] args) {
 	}
 
 	libraryPath = configurationPath.buildPath("lib");
+	
+	version (X86_64) {
+		architectureIdentifier = "x86_64";
+	} else version (X86) {
+		architectureIdentifier = "x86";
+	} else version (AArch64) {
+		architectureIdentifier = "arm64-v8a";
+	} else version (ARM) {
+		architectureIdentifier = "armeabi-v7a";
+	} else {
+		static assert(false, "Architecture not supported :(");
+	}
 
 	string provisioningPathV3 = file.getcwd().buildPath("provisioning");
 
@@ -98,8 +111,8 @@ int main(string[] args) {
 		file.mkdir(provisioningPathV3);
 	}
 
-	auto coreADIPath = libraryPath.buildPath("libCoreADI.so");
-	auto SSCPath = libraryPath.buildPath("libstoreservicescore.so");
+	auto coreADIPath = libraryPath.buildPath("libCoreADI_" ~ architectureIdentifier ~ ".so");
+	auto SSCPath = libraryPath.buildPath("libstoreservicescore_" ~ architectureIdentifier ~ ".so");
 
 	if (!(file.exists(coreADIPath) && file.exists(SSCPath))) {
 		auto http = HTTP();
@@ -111,18 +124,6 @@ int main(string[] args) {
 
 		if (!file.exists(libraryPath)) {
 			file.mkdirRecurse(libraryPath);
-		}
-
-		version (X86_64) {
-			enum string architectureIdentifier = "x86_64";
-		} else version (X86) {
-			enum string architectureIdentifier = "x86";
-		} else version (AArch64) {
-			enum string architectureIdentifier = "arm64-v8a";
-		} else version (ARM) {
-			enum string architectureIdentifier = "armeabi-v7a";
-		} else {
-			static assert(false, "Architecture not supported :(");
 		}
 
 		file.write(coreADIPath, apk.expand(dir["lib/" ~ architectureIdentifier ~ "/libCoreADI.so"]));
@@ -453,7 +454,7 @@ private ADI makeGarbageCollectedADI(string libraryPath) {
 		GC.free(ptr);
 	}
 
-	AndroidLibrary storeServicesCore = new AndroidLibrary(libraryPath.buildPath("libstoreservicescore.so"), [
+	AndroidLibrary storeServicesCore = new AndroidLibrary(libraryPath.buildPath("libstoreservicescore_" ~ architectureIdentifier ~ ".so"), [
 		"malloc": cast(void*) &malloc_GC,
 		"free": cast(void*) &free_GC
 	]);
