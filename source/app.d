@@ -136,6 +136,22 @@ int main(string[] args) {
 		file.write(SSCPath, apk.expand(dir["lib/" ~ architectureIdentifier ~ "/libstoreservicescore.so"]));
 	}
 
+	if (file.exists(libraryPath.buildPath("libCoreADI.so"))) {
+        file.remove(libraryPath.buildPath("libCoreADI.so"));
+    }
+    if (file.exists(libraryPath.buildPath("libstoreservicescore.so"))) {
+        file.remove(libraryPath.buildPath("libstoreservicescore.so"));
+    }
+
+	file.symlink(
+        libraryPath.buildPath("libCoreADI_" ~ architectureIdentifier ~ ".so"),
+        libraryPath.buildPath("libCoreADI.so")
+    );
+    file.symlink(
+        libraryPath.buildPath("libstoreservicescore_" ~ architectureIdentifier ~ ".so"), 
+        libraryPath.buildPath("libstoreservicescore.so")
+    );
+
 	// Initializing ADI and machine if it has not already been made.
 	v1Device = new Device(configurationPath.buildPath("device.json"));
 	v1Adi = new ADI(libraryPath);
